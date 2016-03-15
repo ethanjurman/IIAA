@@ -1,0 +1,10 @@
+# Javascript modules
+node_modules/*
+
+# Server directories
+dist/*
+build/*
+keys/*
+
+# Log Files
+*.log
