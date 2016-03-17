@@ -22,7 +22,9 @@
     "moment": "^2.11.2",
     "onchange": "^2.0.0",
     "react": "^0.14.7",
-    "react-dom": "^0.14.7"
+    "react-dom": "^0.14.7",
+    "rss-parser": "^2.2.4",
+    "xml2js": "^0.4.16"
   },
   "browserify": {
     "extension": [
@@ -39,7 +41,7 @@
     "postbuild:server": "copyfiles -f dist",
     "postbuild:client": "echo watching for changes",
     "prebuild:server": "mkdirp dist",
-    "build:server": "babel src/server/server.js -o dist/server.js & babel src/server/apis.js -o dist/apis.js",
+    "build:server": "babel src/server/server.js -o dist/server.js & babel src/server/feed-loader.js -o dist/feed-loader.js",
     "build:css": "copyfiles -f ./src/client/css/*.css dist/client/css",
     "build:html": "copyfiles -f ./src/client/*.html dist/client",
     "build": "npm run build:server & npm run build:client",

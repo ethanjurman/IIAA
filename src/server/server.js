@@ -10,11 +10,6 @@ app.use(cors());
 // host client files as static files
 app.use(express.static(__dirname + '/client'));
 
-app.use((req, res, next)=>{
-  res.redirect('/');
-});
-
-
 app.listen(3000, ()=>{
   console.log("listening on port 3000")
 });

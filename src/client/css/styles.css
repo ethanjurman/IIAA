@@ -1,4 +1,34 @@
 /* Simple title css */
-.title {
-  font-size: 2em;
+@keyframes reset {
+  0% {
+    position: relative;
+    right: 110%;
+    opacity: 0;
+  }
+  100% {
+    position: relative;
+    right: 110%;
+    opacity: 0;
+  }
+}
+
+@keyframes move-in {
+  0% {
+    position: relative;
+    right: 110%;
+    opacity: 0;
+  }
+  100% {
+    position: relative;
+    right: 0%;
+    opacity: 1;
+  }
+}
+
+.move-in {
+  animation-delay: 0, 0;
+  animation-name: reset, move-in;
+  animation-duration: 2s;
+  animation-timing-function: ease;
+  animation-iteration-count: 1;
 }
