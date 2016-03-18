@@ -1,10 +1,11 @@
 // main-page.js
 import React, { Component } from 'react';
-import { Card, CardHeader, FlatButton, IconButton, FontIcon } from 'material-ui';
+import { Paper, Card, FloatingActionButton, CardHeader, FlatButton, IconButton, FontIcon } from 'material-ui';
 import { loadFeed } from './feed-loader';
 import FavoriteIcon from 'material-ui/lib/svg-icons/action/favorite';
 import FavoriteBorderIcon from 'material-ui/lib/svg-icons/action/favorite-border';
 import ArrowRight from 'material-ui/lib/svg-icons/hardware/keyboard-arrow-right';
+import SettingsIcon from 'material-ui/lib/svg-icons/action/settings';
 
 const paperStyle = {
   width: 'calc(100% - 10px)',
@@ -13,14 +14,16 @@ const paperStyle = {
 }
 
 const feeds = [
-  'http://espn.go.com/espn/rss/news'
-];
+  'http://espn.go.com/espn/rss/news',
+  'http://rss.cnn.com/rss/edition_world.rss'
+]
 
 export default class MainPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
       feeds: [],
+      disabled: [],
       favorites: [],
       maxFeeds: 0
     }
@@ -36,6 +39,10 @@ export default class MainPage extends Component {
         this.setState({maxFeeds: i})
       }, i * 200);
     }
+    window.localStorage["lastVisit"] = window.localStorage["lastVisit"] || '[]';
+    let lastVisit = JSON.parse(window.localStorage["lastVisit"]);
+    lastVisit.unshift(new Date());
+    window.localStorage["lastVisit"] = JSON.stringify(lastVisit);
   }
 
   loadMultipleFeeds(){
@@ -48,10 +55,6 @@ export default class MainPage extends Component {
     if (this.state.feeds.find((feed)=>{
       return feed.title == entry.title
     })){ return; }
-    let favorite = false;
-    if (this.state.favorites.find((feed)=>{
-      return feed.title == entry.title
-    })){ this.toggleFavorites.bind(this, entry); }
     this.setState({
       feeds: this.state.feeds.concat(entry).sort(this.compareDates)
     });
@@ -92,6 +95,13 @@ export default class MainPage extends Component {
       return (<span> loading... </span>);
     }
 
+    let lastVisit = '';
+    if (window.localStorage["lastVisit"][1]) {
+      lastVisit = (<div style={{margin:'10px', marginRight:'auto', marginLeft:'auto', color:'gray', fontSize:'0.8em'}}>
+        Last Visit: { JSON.parse(window.localStorage["lastVisit"])[1]}
+      </div>);
+    }
+
     const feedRender = this.state.feeds
       .filter((ele, i) => i < this.state.maxFeeds )
       .map((entry) => {
@@ -116,6 +126,12 @@ export default class MainPage extends Component {
 
     return (
       <div style={{minWidth:'250px'}}>
+        <FloatingActionButton
+          mini={true}
+          style={{ zIndex:'5', position:'fixed', right:'10px'}}>
+          <SettingsIcon />
+        </FloatingActionButton>
+        { lastVisit }
         { feedRender }
       </div>
     );
