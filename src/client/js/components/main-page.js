@@ -41,8 +41,18 @@ export default class MainPage extends Component {
     }
     window.localStorage["lastVisit"] = window.localStorage["lastVisit"] || '[]';
     let lastVisit = JSON.parse(window.localStorage["lastVisit"]);
-    lastVisit.unshift(new Date());
+    lastVisit.unshift(this.getDateString());
     window.localStorage["lastVisit"] = JSON.stringify(lastVisit);
+  }
+
+  getDateString(){
+    const today = new Date();
+    let dd = today.getDate();
+    let mm = today.getMonth()+1;
+    let yyyy = today.getFullYear();
+    if( dd<10 ){ dd='0'+dd }
+    if( mm<10 ){ mm='0'+mm }
+    return `${dd}-${mm}-${yyyy} ${today.toTimeString().split(" ")[0]}`;
   }
 
   loadMultipleFeeds(){
@@ -96,9 +106,9 @@ export default class MainPage extends Component {
     }
 
     let lastVisit = '';
-    if (window.localStorage["lastVisit"][1]) {
+    if (JSON.parse(window.localStorage["lastVisit"])[1]) {
       lastVisit = (<div style={{margin:'10px', marginRight:'auto', marginLeft:'auto', color:'gray', fontSize:'0.8em'}}>
-        Last Visit: { JSON.parse(window.localStorage["lastVisit"])[1]}
+        Your last visit was on { JSON.parse(window.localStorage["lastVisit"])[1]}
       </div>);
     }
 

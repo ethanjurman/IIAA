@@ -8,7 +8,7 @@ Individual Information Aggregation Assignment
 - [ ] Data storage should be done in a local XML/JSon file. Relational SQL and MongoDB are not allowed. You also may not use .csv, or flatfiles.
 - [x] You must ensure that your application has proper responsive design. I will be using several recent browsers and mobile devices to test your site.
 - [ ] User's should be able to create new accounts. This means that someone should be able to visit the page, and select that they want to create a new user. They should create a new username and password. Security is not an issue here, so don't worry about storing user names/passwords in XML/JSON. You do not need any forgot password reminders.
-- [ ] Use cookies to remember the last time a user visited the page. This information should be shown on the main page ("Your last visit was on mm-dd-yyyy HH:mm:ss")
+- [x] Use cookies to remember the last time a user visited the page. This information should be shown on the main page ("Your last visit was on mm-dd-yyyy HH:mm:ss")
 - [ ] Optimally, the site should use AJAX to eliminate the need for refreshing the page. All information should be shown in real time.
 - [x] The news list should never end. If you keep scrolling down, older items should automatically appear.
 - [x] The most current items should be shown at the top of the page. As you scroll down the page, the items should get older (think how Twitter shows tweets.)
