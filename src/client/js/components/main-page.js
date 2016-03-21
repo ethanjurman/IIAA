@@ -2,10 +2,13 @@
 import React, { Component } from 'react';
 import { Paper, Card, FloatingActionButton, CardHeader, FlatButton, IconButton, FontIcon } from 'material-ui';
 import { loadFeed } from './feed-loader';
+import { Settings } from './settings';
+import { Account } from './account';
 import FavoriteIcon from 'material-ui/lib/svg-icons/action/favorite';
 import FavoriteBorderIcon from 'material-ui/lib/svg-icons/action/favorite-border';
 import ArrowRight from 'material-ui/lib/svg-icons/hardware/keyboard-arrow-right';
 import SettingsIcon from 'material-ui/lib/svg-icons/action/settings';
+import AccountIcon from 'material-ui/lib/svg-icons/social/person';
 
 const paperStyle = {
   width: 'calc(100% - 10px)',
@@ -13,9 +16,11 @@ const paperStyle = {
   padding: '10px'
 }
 
-const feeds = [
-  'http://espn.go.com/espn/rss/news',
-  'http://rss.cnn.com/rss/edition_world.rss'
+const RSSFeeds = [
+  { name:'ESPN News', rss:'http://espn.go.com/espn/rss/news' },
+  { name:'CNN World News', rss:'http://rss.cnn.com/rss/edition_world.rss' },
+  { name:'CNN Top News', rss:'http://rss.cnn.com/rss/edition.rss' },
+  { name:'CNN Technology', rss:'http://rss.cnn.com/rss/edition_technology.rss'},
 ]
 
 export default class MainPage extends Component {
@@ -23,8 +28,10 @@ export default class MainPage extends Component {
     super(props);
     this.state = {
       feeds: [],
-      disabled: [],
+      disabledFeeds: ['CNN World News', 'CNN Top News', 'CNN Technology'],
       favorites: [],
+      showSettings: false,
+      showAccount: false,
       maxFeeds: 0
     }
   }
@@ -56,14 +63,16 @@ export default class MainPage extends Component {
   }
 
   loadMultipleFeeds(){
-    feeds.forEach( (feed) => {
+    RSSFeeds
+      .filter(feed => this.state.disabledFeeds.indexOf(feed.name) == -1 )
+      .forEach( (feed) => {
       loadFeed(feed, this.addFeed.bind(this));
     });
   }
 
   addFeed(entry) {
     if (this.state.feeds.find((feed)=>{
-      return feed.title == entry.title
+      return feed.entry.title == entry.entry.title
     })){ return; }
     this.setState({
       feeds: this.state.feeds.concat(entry).sort(this.compareDates)
@@ -71,7 +80,7 @@ export default class MainPage extends Component {
   }
 
   compareDates(entry1, entry2){
-    return new Date(entry2.pubDate) - new Date(entry1.pubDate);
+    return new Date(entry2.entry.pubDate) - new Date(entry1.entry.pubDate);
   }
 
   toggleFavorites(entry) {
@@ -91,6 +100,30 @@ export default class MainPage extends Component {
     });
   }
 
+  toggleFeed(feed) {
+    if (this.state.disabledFeeds.indexOf(feed.name) == -1) {
+      this.setState({
+        disabledFeeds: this.state.disabledFeeds.concat(feed.name)
+      });
+    } else {
+      let disabledFeeds = this.state.disabledFeeds;
+      disabledFeeds.splice(disabledFeeds.indexOf(feed.name), 1);
+      this.setState({
+        disabledFeeds
+      });
+      this.loadMultipleFeeds.bind(this)();
+    }
+
+  }
+
+  toggleShowSettings() {
+    this.setState({ showSettings: !this.state.showSettings })
+  }
+
+  toggleShowAccount() {
+    this.setState({ showAccount: !this.state.showAccount })
+  }
+
   handleScroll(event){
     // buffer of 50px
     if ((window.innerHeight + window.scrollY + 150) >= document.body.offsetHeight) {
@@ -106,14 +139,16 @@ export default class MainPage extends Component {
     }
 
     let lastVisit = '';
-    if (JSON.parse(window.localStorage["lastVisit"])[1]) {
+    if (JSON.parse(window.localStorage["lastVisit"])[1] ) {
       lastVisit = (<div style={{margin:'10px', marginRight:'auto', marginLeft:'auto', color:'gray', fontSize:'0.8em'}}>
         Your last visit was on { JSON.parse(window.localStorage["lastVisit"])[1]}
       </div>);
     }
 
     const feedRender = this.state.feeds
+      .filter(feed => this.state.disabledFeeds.indexOf(feed.source) == -1 )
       .filter((ele, i) => i < this.state.maxFeeds )
+      .map(feed => feed.entry)
       .map((entry) => {
         return (
           <Card className={'move-in'} style={paperStyle} key={entry.title}>
@@ -136,10 +171,27 @@ export default class MainPage extends Component {
 
     return (
       <div style={{minWidth:'250px'}}>
+        <Settings
+          feeds={RSSFeeds}
+          toggleFeed={this.toggleFeed.bind(this)}
+          disabledFeeds={this.state.disabledFeeds}
+          show={this.state.showSettings}
+          onClose={this.toggleShowSettings.bind(this)}/>
+        <Account
+          show={this.state.showAccount}
+          onClose={this.toggleShowAccount.bind(this)}/>
+
         <FloatingActionButton
+          onClick={this.toggleShowSettings.bind(this)}
+          mini={true}
+          style={{ zIndex:'5', position:'fixed', right:'60px'}}>
+          <SettingsIcon />
+        </FloatingActionButton>
+        <FloatingActionButton
+          onClick={this.toggleShowAccount.bind(this)}
           mini={true}
           style={{ zIndex:'5', position:'fixed', right:'10px'}}>
-          <SettingsIcon />
+          <AccountIcon />
         </FloatingActionButton>
         { lastVisit }
         { feedRender }
