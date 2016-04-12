@@ -12,7 +12,7 @@
   }
 }
 
-@keyframes move-in {
+@keyframes movein {
   0% {
     position: relative;
     right: 110%;
@@ -27,7 +27,7 @@
 
 .move-in {
   animation-delay: 0, 0;
-  animation-name: reset, move-in;
+  animation-name: reset, movein;
   animation-duration: 2s;
   animation-timing-function: ease;
   animation-iteration-count: 1;

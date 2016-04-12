@@ -4,6 +4,7 @@ import { Paper, Card, FloatingActionButton, CardHeader, FlatButton, IconButton, 
 import { loadFeed } from './feed-loader';
 import { Settings } from './settings';
 import { Account } from './account';
+import { loadAccountData, saveAccountData } from './account-loader';
 import FavoriteIcon from 'material-ui/lib/svg-icons/action/favorite';
 import FavoriteBorderIcon from 'material-ui/lib/svg-icons/action/favorite-border';
 import ArrowRight from 'material-ui/lib/svg-icons/hardware/keyboard-arrow-right';
@@ -32,12 +33,15 @@ export default class MainPage extends Component {
       favorites: [],
       showSettings: false,
       showAccount: false,
-      maxFeeds: 0
+      maxFeeds: 0,
+      accounts: {},
+      username: ''
     }
   }
 
   componentDidMount() {
     this.loadMultipleFeeds.bind(this)();
+    loadAccountData(this.loadData.bind(this));
     setInterval(this.loadMultipleFeeds.bind(this), 10*1000);
     window.addEventListener('scroll', this.handleScroll.bind(this));
 
@@ -46,10 +50,43 @@ export default class MainPage extends Component {
         this.setState({maxFeeds: i})
       }, i * 200);
     }
+
     window.localStorage["lastVisit"] = window.localStorage["lastVisit"] || '[]';
     let lastVisit = JSON.parse(window.localStorage["lastVisit"]);
     lastVisit.unshift(this.getDateString());
     window.localStorage["lastVisit"] = JSON.stringify(lastVisit);
+  }
+
+  addAccount(username, password) {
+    const { accounts } = this.state;
+    accounts.users.push(username);
+    accounts.passwords.push(password);
+    this.setState({ accounts });
+    this.setUsername(username);
+    console.log(this.state.accounts);
+  }
+
+  updateAccount() {
+    const { accounts, username, favorites, disabledFeeds } = this.state;
+    const userIndex = accounts.users.indexOf(username);
+    accounts.favs[userIndex] = favorites;
+    accounts.disabled[userIndex] = disabledFeeds;
+    this.setState({ accounts });
+    saveAccountData(accounts);
+  }
+
+  setUsername(username) {
+    const { accounts } = this.state;
+    this.setState(({ username }));
+    const userIndex = accounts.users.indexOf(username);
+    this.setState({disabledFeeds: accounts.disabled[userIndex] || []});
+    this.setState({favorites: accounts.favs[userIndex] || []});
+  }
+
+  loadData(accountData) {
+    const { users, passwords, favs, disabled } = accountData;
+    const accounts = {users, passwords, favs, disabled }
+    this.setState({ accounts });
   }
 
   getDateString(){
@@ -98,6 +135,7 @@ export default class MainPage extends Component {
     this.setState({
       favorites: favorites.concat(entry)
     });
+    this.updateAccount();
   }
 
   toggleFeed(feed) {
@@ -113,15 +151,16 @@ export default class MainPage extends Component {
       });
       this.loadMultipleFeeds.bind(this)();
     }
-
   }
 
   toggleShowSettings() {
-    this.setState({ showSettings: !this.state.showSettings })
+    this.setState({ showSettings: !this.state.showSettings });
+    this.updateAccount();
   }
 
   toggleShowAccount() {
-    this.setState({ showAccount: !this.state.showAccount })
+    this.setState({ showAccount: !this.state.showAccount });
+    this.updateAccount();
   }
 
   handleScroll(event){
@@ -148,8 +187,8 @@ export default class MainPage extends Component {
     const feedRender = this.state.feeds
       .filter(feed => this.state.disabledFeeds.indexOf(feed.source) == -1 )
       .filter((ele, i) => i < this.state.maxFeeds )
-      .map(feed => feed.entry)
-      .map((entry) => {
+      .map((feed) => {
+        const { entry } = feed;
         return (
           <Card className={'move-in'} style={paperStyle} key={entry.title}>
             <CardHeader title={entry.title} subtitle={entry.pubDate}/>
@@ -178,6 +217,9 @@ export default class MainPage extends Component {
           show={this.state.showSettings}
           onClose={this.toggleShowSettings.bind(this)}/>
         <Account
+          accounts={this.state.accounts}
+          setUsername={this.setUsername.bind(this)}
+          addAccount={this.addAccount.bind(this)}
           show={this.state.showAccount}
           onClose={this.toggleShowAccount.bind(this)}/>
 

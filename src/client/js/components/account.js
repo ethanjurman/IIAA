@@ -3,8 +3,43 @@ import React, { Component } from 'react';
 import { Dialog, RaisedButton, TextField } from 'material-ui';
 
 export class Account extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      topText: "Currently Not Logged In"
+    }
+  }
+
   handleClose() {
     this.props.onClose();
+  }
+
+  checkLogIn() {
+    const { accounts, setUsername } = this.props;
+    if ((accounts.users.indexOf(this.state.username)) == (accounts.passwords.indexOf(this.state.password)) &&
+        (accounts.users.indexOf(this.state.username >= 0))) {
+          setUsername(this.state.username);
+          this.handleClose();
+    }
+  }
+
+  makeAccount() {
+    const { accounts, addAccount } = this.props;
+    if ((accounts.users.indexOf(this.state.username) >= 0)) {
+      // already a username
+    } else {
+      addAccount(this.state.username, this.state.password);
+    }
+    this.handleClose();
+  }
+
+  updateUsername(event) {
+    this.setState({ username: event.target.value });
+  }
+
+  updatePassword(event) {
+    this.setState({ password: event.target.value });
   }
 
   render() {
@@ -16,12 +51,19 @@ export class Account extends Component {
         onRequestClose={this.handleClose.bind(this)}>
         <TextField
           hintText="username"
+          onBlur={this.updateUsername.bind(this)}
         /> <br/>
         <TextField
           hintText="password"
           type="password"
+          onBlur={this.updatePassword.bind(this)}
         /> <br/>
-        <RaisedButton label="Log In" /> <RaisedButton label="Make Account" />
+        <RaisedButton
+          label="Log In"
+          onClick={this.checkLogIn.bind(this)} />
+        <RaisedButton style={{marginLeft:'15px'}}
+          label="Make Account"
+          onClick={this.makeAccount.bind(this)} />
       </Dialog>);
     return (dialog);
   }
