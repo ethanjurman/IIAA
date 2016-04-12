@@ -1,6 +1,6 @@
 // settings dialog
 import React, { Component } from 'react';
-import { Dialog, RaisedButton, TextField } from 'material-ui';
+import { Dialog, RaisedButton, TextField, CardText } from 'material-ui';
 
 export class Account extends Component {
 
@@ -13,25 +13,30 @@ export class Account extends Component {
 
   handleClose() {
     this.props.onClose();
+    this.setState( { username: "", password: ""} );
   }
 
   checkLogIn() {
     const { accounts, setUsername } = this.props;
     if ((accounts.users.indexOf(this.state.username)) == (accounts.passwords.indexOf(this.state.password)) &&
-        (accounts.users.indexOf(this.state.username >= 0))) {
+        (accounts.users.indexOf(this.state.username) >= 0)) {
           setUsername(this.state.username);
           this.handleClose();
+          this.setState({topText: `logged in as ${this.state.username}`});
+    } else {
+      this.setState({topText: "Username or Password is incorrect"});
     }
   }
 
   makeAccount() {
     const { accounts, addAccount } = this.props;
     if ((accounts.users.indexOf(this.state.username) >= 0)) {
-      // already a username
+      this.setState({topText: "Username Already Exists"});
     } else {
       addAccount(this.state.username, this.state.password);
+      this.setState({topText: `logged in as ${this.state.username}`});
+      this.handleClose();
     }
-    this.handleClose();
   }
 
   updateUsername(event) {
@@ -49,6 +54,7 @@ export class Account extends Component {
         modal={false}
         open={this.props.show}
         onRequestClose={this.handleClose.bind(this)}>
+        <CardText> {this.state.topText} </CardText>
         <TextField
           hintText="username"
           onBlur={this.updateUsername.bind(this)}

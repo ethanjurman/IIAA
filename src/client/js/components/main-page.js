@@ -79,8 +79,10 @@ export default class MainPage extends Component {
     const { accounts } = this.state;
     this.setState(({ username }));
     const userIndex = accounts.users.indexOf(username);
-    this.setState({disabledFeeds: accounts.disabled[userIndex] || []});
-    this.setState({favorites: accounts.favs[userIndex] || []});
+    this.setState({
+      disabledFeeds: accounts.disabled[userIndex] || [],
+      favorites: accounts.favs[userIndex] || []
+    });
   }
 
   loadData(accountData) {
@@ -122,6 +124,10 @@ export default class MainPage extends Component {
 
   toggleFavorites(entry) {
     const {favorites} = this.state;
+    if (this.state.username == ''){
+      this.toggleShowAccount();
+      return;
+    }
 
     if (favorites.find((feed)=>{
       return feed.title == entry.title
@@ -180,7 +186,8 @@ export default class MainPage extends Component {
     let lastVisit = '';
     if (JSON.parse(window.localStorage["lastVisit"])[1] ) {
       lastVisit = (<div style={{margin:'10px', marginRight:'auto', marginLeft:'auto', color:'gray', fontSize:'0.8em'}}>
-        Your last visit was on { JSON.parse(window.localStorage["lastVisit"])[1]}
+        Your last visit was on { JSON.parse(window.localStorage["lastVisit"])[1] }
+        { this.state.username ? ' - logged in as ' : ''} { this.state.username }
       </div>);
     }
 
